@@ -13,11 +13,24 @@ namespace ConsoleApp20 {
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
 
-            MapTable<TestPacket1>(modelBuilder, "TestPacket1");
+            //ERROR:  IF THIS RUNS, WE'LL GET EMPTY COLUMNS FOR BULK INSERT.
+            modelBuilder.Entity<Frame<TestPacket1>>()
+                .ToTable("TestPacket1")
+                .OwnsOne(x => x.Original, owned => {
+                    owned.Property(p => p.FirstName).HasDefaultValue(string.Empty);
+                })
+                .OwnsOne(x => x.Final, owned => {
+                    owned.Property(p => p.FirstName).HasDefaultValue(string.Empty);
+                })
+                ;
+                
+
+            //MapTable<TestPacket1>(modelBuilder, "TestPacket1");
             MapTable<TestPacket2>(modelBuilder, "TestPacket2");
 
-            //ERROR:  IF THIS LINE RUNS, WE GET EMPTY TABLES
-            modelBuilder.ForEachProperty<string>(x => x.HasDefaultValue(""), CanReadAndWrite);
+            
+            //modelBuilder.ForEachProperty<string>(x => x.HasDefaultValue(""), CanReadAndWrite);
+            //modelBuilder.ForEachProperty2<string>(x => x.SetDefaultValue(""), CanReadAndWrite);
 
             base.OnModelCreating(modelBuilder);
 
